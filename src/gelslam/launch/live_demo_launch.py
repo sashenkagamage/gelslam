@@ -103,8 +103,17 @@ def generate_launch_description():
         ],
     )
 
+    conda_prefix = os.environ.get("CONDA_PREFIX", "")
+    conda_lib = os.path.join(conda_prefix, "lib") if conda_prefix else ""
+    ld_library_path = os.environ.get("LD_LIBRARY_PATH", "")
+    if conda_lib:
+        ld_library_path = (
+            conda_lib + ":" + ld_library_path if ld_library_path else conda_lib
+        )
+
     return LaunchDescription(
         [
+            SetEnvironmentVariable("LD_LIBRARY_PATH", ld_library_path),
             data_dir_arg,
             config_path_arg,
             rendering_arg,

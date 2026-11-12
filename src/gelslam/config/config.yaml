@@ -17,14 +17,15 @@ device_config:
 
 # Configuration of how contact mask is thresholded
 contact_mask_config:
-  color_dist_threshold: 15
-  height_threshold: 0.2
+  color_dist_threshold: 10
+  height_threshold: 0.1
 
 # GelSLAM configuration
 gelslam_config:
   # Configuration of how GelSLAM tracks
   track_config:
-    contact_threshold: 500
+    contact_threshold: 150
+    contact_miss_tolerance: 10
     scr_threshold: 0.3
     ccs_threshold: 0.7
   # Configuration of how GelSLAM builds pose graph and loop closure

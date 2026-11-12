@@ -45,6 +45,10 @@ class Tracker:
         self.curr_kid = -1
         self.ref_frame = None
         self.curr_fid = -1
+        self.contact_miss_count = 0
+        self.contact_miss_tolerance = int(
+            self.track_config.get("contact_miss_tolerance", 8)
+        )
 
     def save(self, save_dir):
         """
@@ -143,12 +147,28 @@ class Tracker:
                 C,
                 contact_threshold=self.track_config["contact_threshold"],
             )
-            # Skip if not in contact
+            # Skip if not in contact. Require several misses in a row before
+            # treating it as a lift, so brief contact dips do not start a new trial.
             if not frame.is_contacted:
+                self.contact_miss_count += 1
+                if (
+                    self.prev_in_contact_flag
+                    and self.contact_miss_count <= self.contact_miss_tolerance
+                ):
+                    self.logger.info(
+                        "%s -- Skip Frame: Weak contact (%d/%d), keeping track"
+                        % (
+                            log_prefix,
+                            self.contact_miss_count,
+                            self.contact_miss_tolerance,
+                        )
+                    )
+                    return False, None
                 self.logger.info("%s -- Skip Frame: Not in contact" % log_prefix)
                 self.prev_in_contact_flag = False
                 return False, None
             else:
+                self.contact_miss_count = 0
                 self.curr_fid += 1
                 keyframe_msgs = []
                 if not self.prev_in_contact_flag:

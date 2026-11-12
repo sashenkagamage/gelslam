@@ -68,13 +68,12 @@ class GelSightStreamerNode(Node):
             framerate,
             (imgw, imgh),
         )
+        # Initialize publishers before starting the capture thread
+        self.image_pub = self.create_publisher(Image, "image", 10)
         # Flag to control the streaming thread
         self.running = True
-        # Start the image streaming thread
         self.stream_thread = threading.Thread(target=self.stream_images)
         self.stream_thread.start()
-        # Initialize publishers
-        self.image_pub = self.create_publisher(Image, "image", 10)
 
     def stream_images(self):
         """
